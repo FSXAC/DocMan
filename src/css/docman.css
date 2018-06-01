@@ -7,4 +7,5 @@ footer.footer { min-height: 24px; }
     z-index: 100;
     padding-top: 1em;
     transition: 0.3s all ease-out;
+    overflow-y: auto;
 }
