@@ -1,5 +1,3 @@
-// TODO: https://ourcodeworld.com/articles/read/202/how-to-include-and-use-jquery-in-electron-framework
-
 const electron = require('electron');
 const url = require('url');
 const path = require('path');

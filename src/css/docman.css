@@ -1,0 +1,10 @@
+footer.footer { min-height: 24px; }
+.sidebar {
+    height: -webkit-fill-available;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding-top: 1em;
+    transition: 0.3s all ease-out;
+}
