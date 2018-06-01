@@ -1,3 +1,5 @@
+// TODO: https://ourcodeworld.com/articles/read/202/how-to-include-and-use-jquery-in-electron-framework
+
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
@@ -29,9 +31,9 @@ function createWindow() {
 
 function createAddDocumentWindow() {
     addDocumentWindow = new BrowserWindow({ width: 400, height: 400 });
-    addDocumentWindow.setMenu(null);
+    // addDocumentWindow.setMenu(null);
     addDocumentWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'addDocument.html'),
+        pathname: path.join(__dirname, 'pages/addDocument.html'),
         protocol: 'file',
         slashes: true
     }));
