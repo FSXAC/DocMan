@@ -1,11 +1,36 @@
 footer.footer { min-height: 24px; }
 .sidebar {
-    height: -webkit-fill-available;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 100;
-    padding-top: 1em;
-    transition: 0.3s all ease-out;
-    overflow-y: auto;
+	height: -webkit-fill-available;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 100;
+	padding-top: 1em;
+	transition: 0.3s all ease-out;
+	overflow-y: auto;
+}
+
+a.nav-link.text-muted {
+	margin-top: 0.2em;
+	padding: 0;
+	padding-left: 0.5em;
+	border-radius: 5px;
+	background-color: transparent;
+	transition: 0.1s all ease-out;
+}
+
+a.nav-link.text-muted:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+.add-list-item {
+	margin-top: 0.2em;
+	padding: 0.5em;
+	border-radius: 5px;
+	background-color: transparent;
+	transition: 0.1s all ease-out;
+}
+
+.add-list-item:hover {
+	background-color: rgba(0, 0, 0, 0.05);
 }

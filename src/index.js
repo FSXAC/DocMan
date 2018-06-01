@@ -35,9 +35,15 @@ function clearList(list) {
 
 function populateCategories() {
 	g_docData.forEach(element => {
-		const newCategory = document.createElement('li');
-		newCategory.appendChild(document.createTextNode(element.category));
+		let newCategory = document.createElement('li');
+		newCategory.classList.add('nav-item');
 
+		let newCategoryA = document.createElement('a');
+		newCategoryA.classList.add('nav-link', 'text-muted');
+		newCategoryA.href = '#';
+		newCategoryA.appendChild(document.createTextNode(element.category));
+
+		newCategory.appendChild(newCategoryA);
 		newCategory.addEventListener('click', ()=> {
 			clearList(courseList);
 			clearList(documentList);
@@ -50,9 +56,16 @@ function populateCategories() {
 
 function populateCourses(courses) {
 	courses.forEach(element => {
-		const newCourse = document.createElement('li');
-		newCourse.appendChild(document.createTextNode(element.course + ': ' + element.description));
+		let newCourse = document.createElement('li');
+		newCourse.classList.add('nav-item');
 
+		let newCourseA = document.createElement('a');
+		newCourseA.classList.add('nav-link', 'text-muted');
+		newCourseA.href = '#';
+		newCourseA.appendChild(document.createTextNode(element.course));
+
+		// newCourse.appendChild(document.createTextNode(element.course + ': ' + element.description));
+		newCourse.appendChild(newCourseA);
 		newCourse.addEventListener('click', ()=> {
 			clearList(documentList);
 			populateEntries(element.entries);
@@ -64,18 +77,19 @@ function populateCourses(courses) {
 
 function populateEntries(entries) {
 	entries.forEach(element => {
-		const newEntry = document.createElement('li');
 
+		// TODO: allow series / enum entries
 		if (element.title !== undefined && element.title !== null && element.title !== '') {
-			newEntry.appendChild(document.createTextNode(element.title));
+			let newEntry = document.createElement('li');
+			newEntry.classList.add('nav-item');
+
+			let newEntryA = document.createElement('a');
+			newEntryA.classList.add('nav-link', 'text-muted');
+			newEntryA.href = '#';
+			newEntryA.appendChild(document.createTextNode(element.title));
+
+			newEntry.appendChild(newEntryA);
 			documentList.appendChild(newEntry);
 		}
-
 	});
-
-	if (documentList.firstChild === null || documentList.firstChild === undefined) {
-		const textNA = document.createElement('i');
-		textNA.appendChild(document.createTextNode('No notes'));
-		documentList.appendChild(textNA);
-	}
 }
