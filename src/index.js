@@ -4,8 +4,8 @@ const { ipcRenderer } = electron;
 const statusText = document.querySelector('#status-text');
 
 const categoryList = document.querySelector('#category-list');
-const courseList = document.querySelector('#course-list');
-const documentList = document.querySelector('#document-list');
+const courseList = document.querySelector('#courses-list');
+const documentList = document.querySelector('#documents-list');
 
 let g_docData;
 

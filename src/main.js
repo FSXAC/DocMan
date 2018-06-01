@@ -99,7 +99,7 @@ const mainMenuTemplate = [
         submenu: [
             {
                 label: 'Learn More',
-                click() { require('electron').shell.openExternal('https://electronjs.org') }
+                click() { electron.shell.openExternal('https://electronjs.org') }
             }
         ]
     }
