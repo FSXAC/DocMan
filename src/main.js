@@ -12,123 +12,151 @@ let addDocumentWindow;
 app.on('ready', createWindow);
 
 function createWindow() {
-    // Create new window
-    mainWindow = new BrowserWindow({width: 1024, height: 640});
-    mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'index.html'),
-        protocol: 'file',
-        slashes: true
-    }));
-    mainWindow.on('closed', ()=>{
-        mainWindow = null;
-    });
+	// Create new window
+	mainWindow = new BrowserWindow({width: 1024, height: 640});
+	mainWindow.loadURL(url.format({
+		pathname: path.join(__dirname, 'index.html'),
+		protocol: 'file',
+		slashes: true
+	}));
+	mainWindow.on('closed', ()=>{
+		mainWindow = null;
+	});
 
-    const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
-    Menu.setApplicationMenu(mainMenu);
+	const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
+	Menu.setApplicationMenu(mainMenu);
 }
 
 function createAddDocumentWindow() {
-    addDocumentWindow = new BrowserWindow({ width: 400, height: 400 });
-    // addDocumentWindow.setMenu(null);
-    addDocumentWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'pages/addDocument.html'),
-        protocol: 'file',
-        slashes: true
-    }));
-    addDocumentWindow.on('closed', ()=>{
-        addDocumentWindow = null;
-    });
+	addDocumentWindow = new BrowserWindow({ width: 400, height: 400 });
+	// addDocumentWindow.setMenu(null);
+	addDocumentWindow.loadURL(url.format({
+		pathname: path.join(__dirname, 'pages/addDocument.html'),
+		protocol: 'file',
+		slashes: true
+	}));
+	addDocumentWindow.on('closed', ()=>{
+		addDocumentWindow = null;
+	});
 }
 
 ipcMain.on('document:add', (e, item)=>{
-    mainWindow.webContents.send('document:add', item);
-    addDocumentWindow.close();
+	mainWindow.webContents.send('document:add', item);
+	addDocumentWindow.close();
 });
 
 const mainMenuTemplate = [
-    {
-        label: 'File',
-        submenu:[
-            {
-                label: 'Open Manifest',
-                accelerator: 'Ctrl+O',
-                click() { openOpenManifestDialog(); }
-            },
-            {
-                label: 'Add document',
-                accelerator: 'Ctrl+N',
-                click() { createAddDocumentWindow(); }
-            },
-            {
-                label: 'Quit',
-                accelerator: 'Ctrl+Q',
-                click() { app.quit(); }
-            }
-        ]
-    },
-    {
-        label: 'Edit',
-        submenu: [
-            { role: 'undo' },
-            { role: 'redo' },
-            { type: 'separator' },
-            { role: 'cut' },
-            { role: 'copy' },
-            { role: 'paste' },
-            { role: 'pasteandmatchstyle' },
-            { role: 'delete' },
-            { role: 'selectall' }
-        ]
-    },
-    {
-        label: 'View',
-        submenu: [
-            { role: 'reload' },
-            { role: 'forcereload' },
-            { role: 'toggledevtools' },
-            { type: 'separator' },
-            { role: 'resetzoom' },
-            { role: 'zoomin' },
-            { role: 'zoomout' },
-            { type: 'separator' },
-            { role: 'togglefullscreen' }
-        ]
-    },
-    {
-        role: 'help',
-        submenu: [
-            {
-                label: 'Learn More',
-                click() { electron.shell.openExternal('https://electronjs.org') }
-            }
-        ]
-    }
+	{
+		label: 'File',
+		submenu:[
+			{
+				label: 'Open Manifest',
+				accelerator: 'Ctrl+O',
+				click() { openOpenManifestDialog(); }
+			},
+			{
+				label: 'Add document',
+				accelerator: 'Ctrl+N',
+				click() { createAddDocumentWindow(); }
+			},
+			{
+				label: 'Quit',
+				accelerator: 'Ctrl+Q',
+				click() { app.quit(); }
+			}
+		]
+	},
+	{
+		label: 'Edit',
+		submenu: [
+			{ role: 'undo' },
+			{ role: 'redo' },
+			{ type: 'separator' },
+			{ role: 'cut' },
+			{ role: 'copy' },
+			{ role: 'paste' },
+			{ role: 'pasteandmatchstyle' },
+			{ role: 'delete' },
+			{ role: 'selectall' }
+		]
+	},
+	{
+		label: 'View',
+		submenu: [
+			{ role: 'reload' },
+			{ role: 'forcereload' },
+			{ role: 'toggledevtools' },
+			{ type: 'separator' },
+			{ role: 'resetzoom' },
+			{ role: 'zoomin' },
+			{ role: 'zoomout' },
+			{ type: 'separator' },
+			{ role: 'togglefullscreen' }
+		]
+	},
+	{
+		role: 'help',
+		submenu: [
+			{
+				label: 'Learn More',
+				click() { electron.shell.openExternal('https://electronjs.org') }
+			}
+		]
+	}
 ];
 
 if (process.env.NODE_ENV !== 'production') {
-    mainMenuTemplate.push({
-        label: 'Developer'
-    });
+	mainMenuTemplate.push({
+		label: 'Developer'
+	});
 }
 
 app.on('window-all-closed', ()=>{
-    app.quit()
+	app.quit()
 });
 
 app.on('active', ()=>{
-    if (mainWindow === null) {
-        createWindow();
-    }
+	if (mainWindow === null) {
+		createWindow();
+	}
 });
 
 function openOpenManifestDialog() {
-    let manifestPath = dialog.showOpenDialog({
-        properties: ['openFile'],
-        filters: [
-            {name: 'Document manifests', extensions: ['json', 'docman']}
-        ]
-    })[0];
+	let manifestPath = dialog.showOpenDialog({
+		properties: ['openFile'],
+		filters: [
+			{name: 'Document manifests', extensions: ['json', 'docman']}
+		]
+	})[0];
 
-    const data = require(manifestPath);
-    mainWindow.webContents.send('manifest:load', data);
+	const data = require(manifestPath);
+	mainWindow.webContents.send('manifest:load', data);
+}
+
+class DocumentList {
+	constructor(inputData) {
+		// properties
+		this.categories = [];
+		this.savepath;
+
+		// construct load data here
+		this.loadData(data);
+	}
+
+	loadData(inputData) {
+		// input data is a JSON that has a list that contains all the categories
+		inputData.docs.forEach(category => {
+			this.categories.push(new CategoryData(category));
+		});
+	}
+
+	// Returns an object to be JSON-fied (for saving)
+	packData() {
+		let categoryDocList = [];
+		this.categories.forEach(element => {
+			categoryDocList.push(element.packData());
+		});
+
+		return { docs: categoryDocList }
+	}
 }
