@@ -132,31 +132,3 @@ function openOpenManifestDialog() {
 	const data = require(manifestPath);
 	mainWindow.webContents.send('manifest:load', data);
 }
-
-class DocumentList {
-	constructor(inputData) {
-		// properties
-		this.categories = [];
-		this.savepath;
-
-		// construct load data here
-		this.loadData(data);
-	}
-
-	loadData(inputData) {
-		// input data is a JSON that has a list that contains all the categories
-		inputData.docs.forEach(category => {
-			this.categories.push(new CategoryData(category));
-		});
-	}
-
-	// Returns an object to be JSON-fied (for saving)
-	packData() {
-		let categoryDocList = [];
-		this.categories.forEach(element => {
-			categoryDocList.push(element.packData());
-		});
-
-		return { docs: categoryDocList }
-	}
-}
