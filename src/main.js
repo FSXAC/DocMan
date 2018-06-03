@@ -1,3 +1,7 @@
+
+'use strict';
+
+/* Electron app stuff */
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
@@ -5,65 +9,25 @@ const path = require('path');
 const { app, BrowserWindow, Menu, ipcMain } = electron;
 const { dialog } = electron;
 
+// Data models
+const { DocumentList, CategoryItem, CourseItem, DocumentEntry, DocumentEntryList } = require('./data.js');
+
+
+// Window
+// Main window
 let mainWindow;
-let addDocumentWindow;
 
-// Listen for app ready
-app.on('ready', createWindow);
-
-function createWindow() {
-	// Create new window
-	mainWindow = new BrowserWindow({width: 1024, height: 640});
-	mainWindow.loadURL(url.format({
-		pathname: path.join(__dirname, 'index.html'),
-		protocol: 'file',
-		slashes: true
-	}));
-	mainWindow.on('closed', ()=>{
-		mainWindow = null;
-	});
-
-	const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
-	Menu.setApplicationMenu(mainMenu);
-}
-
-function createAddDocumentWindow() {
-	addDocumentWindow = new BrowserWindow({ width: 400, height: 400 });
-	// addDocumentWindow.setMenu(null);
-	addDocumentWindow.loadURL(url.format({
-		pathname: path.join(__dirname, 'pages/addDocument.html'),
-		protocol: 'file',
-		slashes: true
-	}));
-	addDocumentWindow.on('closed', ()=>{
-		addDocumentWindow = null;
-	});
-}
-
-ipcMain.on('document:add', (e, item)=>{
-	mainWindow.webContents.send('document:add', item);
-	addDocumentWindow.close();
-});
-
+// Menu options
 const mainMenuTemplate = [
 	{
 		label: 'File',
-		submenu:[
+		submenu: [
 			{
-				label: 'Open Manifest',
+				label: 'Open Document List',
 				accelerator: 'Ctrl+O',
-				click() { openOpenManifestDialog(); }
+				click() { openDocumentList(); }
 			},
-			{
-				label: 'Add document',
-				accelerator: 'Ctrl+N',
-				click() { createAddDocumentWindow(); }
-			},
-			{
-				label: 'Quit',
-				accelerator: 'Ctrl+Q',
-				click() { app.quit(); }
-			}
+			{ role: 'quit' }
 		]
 	},
 	{
@@ -105,14 +69,27 @@ const mainMenuTemplate = [
 	}
 ];
 
-if (process.env.NODE_ENV !== 'production') {
-	mainMenuTemplate.push({
-		label: 'Developer'
+// Listen for app ready -> entry point
+app.on('ready', createWindow);
+
+function createWindow() {
+	// Create new window
+	mainWindow = new BrowserWindow({width: 1024, height: 640});
+	mainWindow.loadURL(url.format({
+		pathname: path.join(__dirname, 'index.html'),
+		protocol: 'file',
+		slashes: true
+	}));
+	mainWindow.on('closed', ()=>{
+		mainWindow = null;
 	});
+
+	const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
+	Menu.setApplicationMenu(mainMenu);
 }
 
 app.on('window-all-closed', ()=>{
-	app.quit()
+	app.quit();
 });
 
 app.on('active', ()=>{
@@ -121,14 +98,47 @@ app.on('active', ()=>{
 	}
 });
 
-function openOpenManifestDialog() {
-	let manifestPath = dialog.showOpenDialog({
+// Global document variables
+let g_documentList;
+
+/* Opens a file dialog window that gets the file path and calls the load document function
+ */
+function openDocumentList() {
+	let readPath = dialog.showOpenDialog({
 		properties: ['openFile'],
 		filters: [
-			{name: 'Document manifests', extensions: ['json', 'docman']}
+			{ name: 'Document manifests', extensions: ['json', 'docman'] }
 		]
 	})[0];
 
-	const data = require(manifestPath);
-	mainWindow.webContents.send('manifest:load', data);
+	loadDocumentList(readPath);
+}
+
+/* Loads a document list
+ * @param file The file of the document list JSON
+ */
+function loadDocumentList(file) {
+	const data = require(file);
+
+	if (typeof data === 'undefined') {
+		// TODO: throw error
+	}
+
+	// - Load the json data into data objects
+	if (g_documentList !== null) {
+		// TODO: user workflow: prompt user to save and reset document list
+	}
+
+	console.log(DocumentEntryList);
+	g_documentList = new DocumentList(data, file);
+
+	// - Validate data
+	// TODO:
+
+	// - Send "rendered" data to view model in index.json
+	// TODO:
+
+	// HACK:
+	// send data via IPC to the javascript in webpage
+	mainWindow.webContents.send('documentList:load', data);
 }

@@ -1,3 +1,7 @@
+'user strict';
+
+const debug = true;
+
 const DocumentEntryFlag = {
 	'new': 'New',
 	'draft': 'Draft'
@@ -11,14 +15,18 @@ class DocumentList {
 	 * @param inputData The JSON data for the whole document list
 	 * @return undefined
 	 */
-	constructor(inputData) {
+	constructor(inputData, path) {
+		if (debug) {
+			console.log('DocumentList created for ', path);
+		}
+
 		// properties
 		this.categories = [];
 		inputData.docs.forEach(category => {
 			this.categories.push(new CategoryItem(category));
 		});
 
-		this.savePath = null;
+		this.savePath = path;
 	}
 
 	/* This function returns the object to be JSONified and saved to file
@@ -42,6 +50,10 @@ class CategoryItem {
 	 * @param inputData The input JSON data
 	 */
 	constructor(inputData) {
+		if (debug) {
+			console.log(inputData);
+		}
+
 		this.courses = [];
 		inputData.courses.forEach(course => {
 			this.courses.push(new CourseItem(course));
@@ -72,12 +84,16 @@ class CourseItem {
 	 * @param inputData Input JSON data
 	 */
 	constructor(inputData) {
-		this.entires = [];
-		inputData.entires.forEach(element => {
+		if (debug) {
+			console.log(inputData);
+		}
+
+		this.entries = [];
+		inputData.entries.forEach(element => {
 			if (element.hasOwnProperty('title', 'link', 'flag')) {
-				this.entires.push(new DocumentEntry(element));
+				this.entries.push(new DocumentEntry(element));
 			} else if (element.hasOwnProperty('title', 'enum', 'links')) {
-				this.entires.push(new DocumentEntryList(element));
+				this.entries.push(new DocumentEntryList(element));
 			} else {
 				// TODO: throw error
 			}
@@ -93,7 +109,7 @@ class CourseItem {
 	 */
 	packData() {
 		let entriesList = [];
-		this.entires.forEach(element => {
+		this.entries.forEach(element => {
 			entriesList.push(element.packData());
 		});
 
@@ -111,6 +127,10 @@ class DocumentEntry {
 	 * @param inputData Input JSON data
 	 */
 	constructor(inputData) {
+		if (debug) {
+			console.log(inputData);
+		}
+
 		this.title = inputData.title;
 		this.link = inputData.link;
 
@@ -139,6 +159,10 @@ class DocumentEntryList {
 	 */
 	constructor(inputData) {
 
+		if (debug) {
+			console.log(inputData);
+		}
+
 		/* SubEntry class specifically for sub entries */
 		this.subEntry = class {
 			constructor(number, link, flag) {
@@ -149,14 +173,14 @@ class DocumentEntryList {
 		};
 
 		this.title = inputData.title;
-		this.subEntires = [];
+		this.subEntries = [];
 
 		const el = inputData.enum.length;
 		const ll = inputData.links.length;
 		if (el === ll) {
 			let i = 0;
 			for (; i < el; i++) {
-				this.subEntires.push(new this.subEntry(
+				this.subEntries.push(new this.subEntry(
 					inputData.enum[i],
 					inputData.links[i],
 					'' // TODO:
@@ -175,7 +199,7 @@ class DocumentEntryList {
 		let linksList = [];
 		let flagsList = [];
 
-		this.subEntires.forEach(element => {
+		this.subEntries.forEach(element => {
 			enumList.push(element.number);
 			linksList.push(element.link);
 			flagsList.push(element.flag);
@@ -189,3 +213,12 @@ class DocumentEntryList {
 		};
 	}
 }
+
+// Export to be imported
+module.exports = {
+	DocumentList: DocumentList,
+	CategoryItem: CategoryItem,
+	CourseItem: CourseItem,
+	DocumentEntry: DocumentEntry,
+	DocumentEntryList: DocumentEntryList
+};

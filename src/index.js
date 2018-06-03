@@ -9,15 +9,7 @@ const documentList = document.querySelector('#documents-list');
 
 let g_docData;
 
-// TODO: to be removed
-ipcRenderer.on('document:add', (e, item)=>{
-	const li = document.createElement('li');
-	const itemText = document.createTextNode(item);
-	li.appendChild(itemText);
-	documentList.appendChild(li);
-});
-
-ipcRenderer.on('manifest:load', (e, data)=>{
+ipcRenderer.on('documentList:load', (e, data)=>{
 	statusText.innerHTML = 'loaded manifest';
 	g_docData = data.docs;
 
