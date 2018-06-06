@@ -47,46 +47,43 @@ class DocumentList {
 	validateFiles() {
 
 		const extensions = [
-			'pdf',
 			'html',
-			'md'
+			'pdf',
+			'md',
+			'htm'
 		];
 
 		const localPath = this.path;
-		let validateSingleFile = function(filepath) {
-			
-			// HACK: TODO: this is shitty implementation that doesn't even work
-			// TODO: TODO:
-			// DELETION
+		let validateSingleFile = function (filepath) {
 
-			// let filename = filepath.split('/').splice(-1);
-			// let extension = /(?:\.([^.]+))?$/.exec(filename)[0];
-			// let fullpath = localPath + '\\' + filepath;
+			// check if it's a web link
+			const urlRegexp = /^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/;
+			if (urlRegexp.test(filepath)) {
+				return true;
+			}
+
+			// if not: check if the local link has file extension
+			let filename = filepath.split('/').splice(-1);
+
+			// If the file has extension
+			const extensionRegexp = /(?:\.([^.]+))$/;
+			let hasExtension = extensionRegexp.test(filename);
+
+			// Construct the full path
+			let fullpath = localPath + '\\' + filepath.split('/').join('\\');
+
+			// Open to test file
 			let isValid = false;
-
-			// FIXME:
-			// fs.stat(fullpath, (error, stat)=> {
-			// 	if (error === null) {
-			// 		// exists
-			// 		isValid = true;
-					
-			// 	} else if (error.code == 'ENOENT') {
-
-			// 		// Doesn't exist
-			// 		console.log('extension: ', extension);
-
-			// 		// Doesn't have extension - try extensions
-			// 		if (extension === undefined || extension === '') {
-			// 			for (let i = 0; i < extensions.length; i++) {
-			// 				if (validateSingleFile(fullpath + '.' + extensions[i])) {
-			// 					isValid = true;
-			// 				}
-			// 			}
-			// 		}
-			// 	} else {
-			// 		// TODO: throw error
-			// 	}
-			// });
+			if (fs.existsSync(fullpath)) {
+				isValid = true;
+			} else if (!hasExtension) {
+				for (let i = 0; i < extensions.length; i++) {
+					if (fs.existsSync(fullpath + '.' + extensions[i])) {
+						isValid = true;
+						break;
+					}
+				}
+			}
 
 			return isValid;
 		}
@@ -94,12 +91,11 @@ class DocumentList {
 		this.categories.forEach(category => {
 			category.courses.forEach(course => {
 				course.entries.forEach(entry => {
-					if(entry instanceof DocumentEntry) {
+					if (entry instanceof DocumentEntry) {
 						if (entry.link !== undefined && entry.link !== null) {
-							
+
 							// TODO: some way to join directory
-							console.log(entry.link);
-							console.log(validateSingleFile(entry.link));
+							entry.isValid = validateSingleFile(entry.link);
 						} else {
 							// TODO: throw error
 						}
@@ -107,7 +103,7 @@ class DocumentList {
 						entry.subEntries.forEach(element => {
 							// TODO: check directory
 							if (element.link !== undefined) {
-								// console.log(this.path + '\\' + element.link);
+								element.isValid = validateSingleFile(element.link);
 							}
 						});
 					} else {
