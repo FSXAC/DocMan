@@ -16,6 +16,9 @@ a.nav-link.text-muted {
 	padding-left: 0.5em;
 	border-radius: 5px;
 	background-color: transparent;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow-x: hidden;
 	transition: 0.1s all ease-out;
 }
 

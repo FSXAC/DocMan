@@ -2,6 +2,8 @@
 
 const debug = true;
 
+const fs = require('fs');
+
 const DocumentEntryFlag = {
 	'new': 'New',
 	'draft': 'Draft'
@@ -16,9 +18,6 @@ class DocumentList {
 	 * @return undefined
 	 */
 	constructor(inputData, path) {
-		if (debug) {
-			console.log('DocumentList created for ', path);
-		}
 
 		// properties
 		this.categories = [];
@@ -26,7 +25,9 @@ class DocumentList {
 			this.categories.push(new CategoryItem(category));
 		});
 
-		this.savePath = path;
+		let splitPath = path.split('\\');	// HACK: if on windows
+		this.path = splitPath.slice(0, -1).join('\\');
+		this.filename = splitPath.slice(-1);
 	}
 
 	/* This function returns the object to be JSONified and saved to file
@@ -40,6 +41,82 @@ class DocumentList {
 
 		return { docs: categoryDocList };
 	}
+
+	/* Validate file paths and make sure they exist
+	 */
+	validateFiles() {
+
+		const extensions = [
+			'pdf',
+			'html',
+			'md'
+		];
+
+		const localPath = this.path;
+		let validateSingleFile = function(filepath) {
+			
+			// HACK: TODO: this is shitty implementation that doesn't even work
+			// TODO: TODO:
+			// DELETION
+
+			// let filename = filepath.split('/').splice(-1);
+			// let extension = /(?:\.([^.]+))?$/.exec(filename)[0];
+			// let fullpath = localPath + '\\' + filepath;
+			let isValid = false;
+
+			// FIXME:
+			// fs.stat(fullpath, (error, stat)=> {
+			// 	if (error === null) {
+			// 		// exists
+			// 		isValid = true;
+					
+			// 	} else if (error.code == 'ENOENT') {
+
+			// 		// Doesn't exist
+			// 		console.log('extension: ', extension);
+
+			// 		// Doesn't have extension - try extensions
+			// 		if (extension === undefined || extension === '') {
+			// 			for (let i = 0; i < extensions.length; i++) {
+			// 				if (validateSingleFile(fullpath + '.' + extensions[i])) {
+			// 					isValid = true;
+			// 				}
+			// 			}
+			// 		}
+			// 	} else {
+			// 		// TODO: throw error
+			// 	}
+			// });
+
+			return isValid;
+		}
+
+		this.categories.forEach(category => {
+			category.courses.forEach(course => {
+				course.entries.forEach(entry => {
+					if(entry instanceof DocumentEntry) {
+						if (entry.link !== undefined && entry.link !== null) {
+							
+							// TODO: some way to join directory
+							console.log(entry.link);
+							console.log(validateSingleFile(entry.link));
+						} else {
+							// TODO: throw error
+						}
+					} else if (entry instanceof DocumentEntryList) {
+						entry.subEntries.forEach(element => {
+							// TODO: check directory
+							if (element.link !== undefined) {
+								// console.log(this.path + '\\' + element.link);
+							}
+						});
+					} else {
+						// TODO: throw error
+					}
+				});
+			});
+		});
+	}
 }
 
 /* CategoryItem is the class that holds the colletion of courses
@@ -50,9 +127,6 @@ class CategoryItem {
 	 * @param inputData The input JSON data
 	 */
 	constructor(inputData) {
-		if (debug) {
-			console.log(inputData);
-		}
 
 		this.courses = [];
 		inputData.courses.forEach(course => {
@@ -84,15 +158,13 @@ class CourseItem {
 	 * @param inputData Input JSON data
 	 */
 	constructor(inputData) {
-		if (debug) {
-			console.log(inputData);
-		}
 
 		this.entries = [];
+
 		inputData.entries.forEach(element => {
-			if (element.hasOwnProperty('title', 'link', 'flag')) {
+			if (element.hasOwnProperty('title') && element.hasOwnProperty('link') && element.hasOwnProperty('flag')) {
 				this.entries.push(new DocumentEntry(element));
-			} else if (element.hasOwnProperty('title', 'enum', 'links')) {
+			} else if (element.hasOwnProperty('title') && element.hasOwnProperty('enum') && element.hasOwnProperty('links')) {
 				this.entries.push(new DocumentEntryList(element));
 			} else {
 				// TODO: throw error
@@ -101,7 +173,11 @@ class CourseItem {
 
 		this.courseId = inputData.course;
 		this.courseDescription = inputData.description;
-		this.lastUpdatedDate = new Date(inputData.date);
+
+		this.lastUpdatedDate = null;
+		if (inputData.date !== '' && inputData.date !== null) {
+			this.lastUpdatedDate = new Date(inputData.date);
+		}
 	}
 
 	/* Returns packed object to be saved
@@ -127,12 +203,10 @@ class DocumentEntry {
 	 * @param inputData Input JSON data
 	 */
 	constructor(inputData) {
-		if (debug) {
-			console.log(inputData);
-		}
 
 		this.title = inputData.title;
 		this.link = inputData.link;
+		this.linkValid = false;
 
 		if (DocumentEntryFlag.hasOwnProperty(this.flag)) {
 			this.flag = inputData.flag;
@@ -159,15 +233,12 @@ class DocumentEntryList {
 	 */
 	constructor(inputData) {
 
-		if (debug) {
-			console.log(inputData);
-		}
-
 		/* SubEntry class specifically for sub entries */
 		this.subEntry = class {
 			constructor(number, link, flag) {
 				this.number = number;
 				this.link = link;
+				this.linkValid = false;
 				this.flag = flag;
 			}
 		};

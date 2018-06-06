@@ -134,6 +134,7 @@ function loadDocumentList(file) {
 
 	// - Validate data
 	// TODO:
+	g_documentList.validateFiles();
 
 	// - Send "rendered" data to view model in index.json
 	// TODO:
