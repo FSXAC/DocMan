@@ -9,7 +9,7 @@
 	
 	<div class="container-fluid">
 	<div class="row">
-		<nav class="col-sm-2 bg-light sidebar border-right shadow-sm">
+		<nav id="category-list-container" class="col-sm-2 bg-light sidebar border-right shadow-sm">
 			<div class="sidebar-sticky profile-bar bg-dark text-light text-center p-3 rounded">
 				<div class="rounded-circle shadow" style="width:64px; height:64px; background-color: grey; margin:auto; "></div>
 				<h6 class="lead p-1">Hello Muchen!</h6>
@@ -34,7 +34,7 @@
 				</a>
 			</div>
 		</nav>
-		<nav class="col-sm-2 bg-white sidebar border-right shadow-sm">
+		<nav id="course-list-container" class="col-sm-2 bg-white sidebar border-right shadow-sm">
 			<div class="sidebar-sticky">
 				<h5 class="sidebar-heading d-flex justify-content-between align-items-center text-muted">Courses</h5>
 				<ul id="courses-list" class="nav flex-column"></ul>
@@ -53,11 +53,11 @@
 				</a>
 			</div>
 		</nav>
-		<nav class="col-sm-2 bg-light sidebar border-right shadow-sm">
+		<nav id="document-list-container" class="col-sm-2 bg-light sidebar border-right shadow-sm">
 			<div class="sidebar-sticky">
 				<h5 class="sidebar-heading d-flex justify-content-between align-items-center text-muted">Documents</h5>
 				
-				<ul id="documents-list" class="nav flex-column mb-2"></ul>
+				<ul id="document-list" class="nav flex-column mb-2"></ul>
 
 				<hr>
 				<a class="align-items-center text-secondary" href="#" style="text-decoration: none">
@@ -75,7 +75,7 @@
 
 			</div>
 		</nav>
-		<div class="col-sm-6">
+		<div id="main-panel-container" class="col-sm-6">
 			<div class="pt-5 pb-5 text-center">
 				<main role="main" class="inner cover">
 					<h1 class="cover-heading">DocMan.</h1>
@@ -95,7 +95,10 @@
 		</div>
 	</footer>
 	
-	<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+	<!-- <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script> -->
+	<script>
+		window.$ = window.jQuery = require('jquery');
+	</script>
 	<script type="text/javascript" src="js/popper.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="index.js"></script>

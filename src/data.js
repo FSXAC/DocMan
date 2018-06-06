@@ -101,7 +101,6 @@ class DocumentList {
 						}
 					} else if (entry instanceof DocumentEntryList) {
 						entry.subEntries.forEach(element => {
-							// TODO: check directory
 							if (element.link !== undefined) {
 								element.isValid = validateSingleFile(element.link);
 							}
