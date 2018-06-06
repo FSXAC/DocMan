@@ -13,13 +13,17 @@ let $statusText = $('#status-text');
 
 let $categoryList = $('#category-list');
 let $courseList = $('#course-list');
-let $doucmentList = $('#document-list');
+let $documentList = $('#document-list');
 
 let $categoryListContainer = $('#category-list-container');
 let $courseListContainer = $('#course-list-container');
 let $documentListContainer = $('#document-list-container');
 
 let $mainPanelContainer = $('#main-panel-container');
+
+let $uninitPlacement = $('#uninit-placement');
+
+let $allSidebarSticky = $('.sidebar-sticky');
 
 // Data
 let g_docData;
@@ -29,21 +33,18 @@ ipcRenderer.on('documentList:load', (e, data)=>{
 	$statusText.innerHTML = 'loaded manifest';
 	g_docData = data.docs;
 
-	clearList($categoryList);
-	clearList($courseList);
-	clearList($documentList);
+	$categoryList.empty();
+	$courseList.empty();
+	$documentList.empty();
 	populateCategories();
+
+	setState(ViewStates.init);
 });
 
 // REFACTOR:
-function clearList(list) {
-	while (list.firstChild) {
-		list.removeChild(list.firstChild);
-	}
-}
-
-// REFACTOR:
 function populateCategories() {
+	setState(ViewStates.category);
+
 	g_docData.forEach(element => {
 		let newCategory = document.createElement('li');
 		newCategory.classList.add('nav-item');
@@ -55,17 +56,20 @@ function populateCategories() {
 
 		newCategory.appendChild(newCategoryA);
 		newCategory.addEventListener('click', ()=> {
-			clearList($courseList);
-			clearList($documentList);
+			$courseList.empty();
+			$documentList.empty();
 			populateCourses(element.courses);
 		});
 
-		$categoryList.appendChild(newCategory);
+		$categoryList.append(newCategory);
 	});
+
 }
 
 // REFACTOR:
 function populateCourses(courses) {
+	setState(ViewStates.course);
+
 	courses.forEach(element => {
 		let newCourse = document.createElement('li');
 		newCourse.classList.add('nav-item');
@@ -78,16 +82,19 @@ function populateCourses(courses) {
 		// newCourse.appendChild(document.createTextNode(element.course + ': ' + element.description));
 		newCourse.appendChild(newCourseA);
 		newCourse.addEventListener('click', ()=> {
-			clearList($documentList);
+			$documentList.empty();
 			populateEntries(element.entries);
 		});
 
-		$courseList.appendChild(newCourse);
+		$courseList.append(newCourse);
 	});
+
 }
 
 // REFACTOR:
 function populateEntries(entries) {
+	setState(ViewStates.document);
+
 	entries.forEach(element => {
 
 		// TODO: allow series / enum entries
@@ -101,9 +108,10 @@ function populateEntries(entries) {
 			newEntryA.appendChild(document.createTextNode(element.title));
 
 			newEntry.appendChild(newEntryA);
-			$documentList.appendChild(newEntry);
+			$documentList.append(newEntry);
 		}
 	});
+
 }
 
 // TODO: maybe use a class ???
@@ -161,10 +169,13 @@ function updateStateOutput() {
 			$mainPanelContainer.addClass('col-sm-10');
 			$documentListContainer.hide();
 			$courseListContainer.hide();
+			$allSidebarSticky.hide();
 		}
+		break;
 		case ViewStates.init: {
 			// set a bunch of things true
-			/* here */
+			$allSidebarSticky.show();
+			$uninitPlacement.hide();
 
 			setState(ViewStates.category);
 		}
@@ -193,10 +204,17 @@ function updateStateOutput() {
 }
 
 // View-specific keyboard controls
+// FIXME:
 let Mousetrap = require('mousetrap');
 Mousetrap.bind('left', ()=> {
 	updateState('left');
 });
 Mousetrap.bind('right', ()=> {
 	updateState('right');
+});
+
+
+// View to IPC controller events
+$('.request-openDocumentList').on('click', ()=> {
+	ipcRenderer.send('request:openDocumentList');
 });

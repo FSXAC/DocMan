@@ -10,11 +10,13 @@
 	<div class="container-fluid">
 	<div class="row">
 		<nav id="category-list-container" class="col-sm-2 bg-light sidebar border-right shadow-sm">
-			<div class="sidebar-sticky profile-bar bg-dark text-light text-center p-3 rounded">
+			<!-- TODO: make login -->
+			<!-- <div class="sidebar-sticky profile-bar bg-dark text-light text-center p-3 rounded" style="display:none">
 				<div class="rounded-circle shadow" style="width:64px; height:64px; background-color: grey; margin:auto; "></div>
 				<h6 class="lead p-1">Hello Muchen!</h6>
 			</div>
-			<hr>
+			<hr> -->
+			<!-- END OF TODO -->
 
 			<div class="sidebar-sticky">
 				<h5 class="sidebar-heading d-flex justify-content-between align-items-center text-muted">Category</h5>
@@ -33,11 +35,16 @@
 					</div>
 				</a>
 			</div>
+
+			<div id="uninit-placement">
+				<p class='mb-3'>Open a document list to get start with managing your documents.</p>
+				<btn class="btn btn-sm btn-outline-primary request-openDocumentList">Open</btn>
+			</div>
 		</nav>
 		<nav id="course-list-container" class="col-sm-2 bg-white sidebar border-right shadow-sm">
 			<div class="sidebar-sticky">
 				<h5 class="sidebar-heading d-flex justify-content-between align-items-center text-muted">Courses</h5>
-				<ul id="courses-list" class="nav flex-column"></ul>
+				<ul id="course-list" class="nav flex-column"></ul>
 
 				<hr>
 				<a class="align-items-center text-secondary" href="#" style="text-decoration: none">

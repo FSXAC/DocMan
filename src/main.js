@@ -69,24 +69,26 @@ const mainMenuTemplate = [
 	}
 ];
 
-// Listen for app ready -> entry point
-app.on('ready', createWindow);
-
+// Create window
 function createWindow() {
 	// Create new window
-	mainWindow = new BrowserWindow({width: 1024, height: 640});
+	mainWindow = new BrowserWindow({ width: 1024, height: 640 });
 	mainWindow.loadURL(url.format({
 		pathname: path.join(__dirname, 'index.html'),
 		protocol: 'file',
 		slashes: true
 	}));
-	mainWindow.on('closed', ()=>{
+	mainWindow.on('closed', () => {
 		mainWindow = null;
 	});
 
 	const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
 	Menu.setApplicationMenu(mainMenu);
 }
+
+// App events
+// Listen for app ready -> entry point
+app.on('ready', createWindow);
 
 app.on('window-all-closed', ()=>{
 	app.quit();
@@ -97,6 +99,9 @@ app.on('active', ()=>{
 		createWindow();
 	}
 });
+
+// IPC incoming events
+ipcMain.on('request:openDocumentList', openDocumentList);
 
 // Global document variables
 let g_documentList;
