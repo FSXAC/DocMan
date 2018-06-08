@@ -49,9 +49,7 @@ function populateCategories() {
 	g_localDocumentList.categories.forEach(category => {
 		let newCategory = document.createElement('li');
 		newCategory.classList.add('nav-item', 'category-item');
-
-		// FIXME: id should come from the model data
-		$(newCategory).attr('id', 'category-' + category.categoryName);
+		$(newCategory).attr('id', category.id);
 
 		let newCategoryA = document.createElement('a');
 		newCategoryA.classList.add('nav-link', 'text-muted');
