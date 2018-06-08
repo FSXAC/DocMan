@@ -26,93 +26,105 @@ let $uninitPlacement = $('#uninit-placement');
 let $allSidebarSticky = $('.sidebar-sticky');
 
 // Data
-let g_docData;
+let g_localDocumentList;
+let g_localDocumentListHash;
 
 // ICP handlers for signals
-ipcRenderer.on('documentList:load', (e, data)=>{
-	$statusText.innerHTML = 'loaded manifest';
-	g_docData = data.docs;
+ipcRenderer.on('documentList:update', (e, payload)=> {
+	console.log(payload.hash);
+	if (g_localDocumentListHash === payload.hash) {
+		return;
+	}
 
-	$categoryList.empty();
-	$courseList.empty();
-	$documentList.empty();
-	populateCategories();
+	g_localDocumentList = payload.data;
+	g_localDocumentListHash = payload.hash;
 
 	setState(ViewStates.init);
+	populateCategories();
 });
 
-// REFACTOR:
 function populateCategories() {
-	setState(ViewStates.category);
+	$categoryList.empty();
 
-	g_docData.forEach(element => {
+	g_localDocumentList.categories.forEach(category => {
 		let newCategory = document.createElement('li');
-		newCategory.classList.add('nav-item');
+		newCategory.classList.add('nav-item', 'category-item');
+
+		// FIXME: id should come from the model data
+		$(newCategory).attr('id', 'category-' + category.categoryName);
 
 		let newCategoryA = document.createElement('a');
 		newCategoryA.classList.add('nav-link', 'text-muted');
 		newCategoryA.href = '#';
-		newCategoryA.appendChild(document.createTextNode(element.category));
+		newCategoryA.appendChild(document.createTextNode(category.categoryName));
 
 		newCategory.appendChild(newCategoryA);
 		newCategory.addEventListener('click', ()=> {
-			$courseList.empty();
-			$documentList.empty();
-			populateCourses(element.courses);
+
+			// Select current item as active
+			$('.category-item').removeClass('active');
+			$(newCategory).addClass('active');
+			// populateCourses(category.courses);
+
+			// - set active category ID
+
+			// - send event with active category ID
+
+			// ... backend should find the corresponding course object with the same ID
+
+			// ... backend should fire event to populate course with course object
 		});
 
 		$categoryList.append(newCategory);
 	});
-
 }
 
-// REFACTOR:
-function populateCourses(courses) {
-	setState(ViewStates.course);
+// // REFACTOR:
+// function populateCourses(courses) {
+// 	setState(ViewStates.course);
 
-	courses.forEach(element => {
-		let newCourse = document.createElement('li');
-		newCourse.classList.add('nav-item');
+// 	courses.forEach(element => {
+// 		let newCourse = document.createElement('li');
+// 		newCourse.classList.add('nav-item');
 
-		let newCourseA = document.createElement('a');
-		newCourseA.classList.add('nav-link', 'text-muted');
-		newCourseA.href = '#';
-		newCourseA.appendChild(document.createTextNode(element.course));
+// 		let newCourseA = document.createElement('a');
+// 		newCourseA.classList.add('nav-link', 'text-muted');
+// 		newCourseA.href = '#';
+// 		newCourseA.appendChild(document.createTextNode(element.course));
 
-		// newCourse.appendChild(document.createTextNode(element.course + ': ' + element.description));
-		newCourse.appendChild(newCourseA);
-		newCourse.addEventListener('click', ()=> {
-			$documentList.empty();
-			populateEntries(element.entries);
-		});
+// 		// newCourse.appendChild(document.createTextNode(element.course + ': ' + element.description));
+// 		newCourse.appendChild(newCourseA);
+// 		newCourse.addEventListener('click', ()=> {
+// 			$documentList.empty();
+// 			populateEntries(element.entries);
+// 		});
 
-		$courseList.append(newCourse);
-	});
+// 		$courseList.append(newCourse);
+// 	});
 
-}
+// }
 
-// REFACTOR:
-function populateEntries(entries) {
-	setState(ViewStates.document);
+// // REFACTOR:
+// function populateEntries(entries) {
+// 	setState(ViewStates.document);
 
-	entries.forEach(element => {
+// 	entries.forEach(element => {
 
-		// TODO: allow series / enum entries
-		if (element.title !== undefined && element.title !== null && element.title !== '') {
-			let newEntry = document.createElement('li');
-			newEntry.classList.add('nav-item');
+// 		// TODO: allow series / enum entries
+// 		if (element.title !== undefined && element.title !== null && element.title !== '') {
+// 			let newEntry = document.createElement('li');
+// 			newEntry.classList.add('nav-item');
 
-			let newEntryA = document.createElement('a');
-			newEntryA.classList.add('nav-link', 'text-muted');
-			newEntryA.href = '#';
-			newEntryA.appendChild(document.createTextNode(element.title));
+// 			let newEntryA = document.createElement('a');
+// 			newEntryA.classList.add('nav-link', 'text-muted');
+// 			newEntryA.href = '#';
+// 			newEntryA.appendChild(document.createTextNode(element.title));
 
-			newEntry.appendChild(newEntryA);
-			$documentList.append(newEntry);
-		}
-	});
-
-}
+// 			newEntry.appendChild(newEntryA);
+// 			$documentList.append(newEntry);
+// 		}
+// });
+// }
 
 // TODO: maybe use a class ???
 // View state machine

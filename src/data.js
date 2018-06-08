@@ -9,6 +9,13 @@ const DocumentEntryFlag = {
 	'draft': 'Draft'
 };
 
+
+/* This helper function creates unique IDs for the objects
+ */
+function getUID(prefix) {
+	return prefix + '-' + Math.random().toString(36).substr(2, 16);
+}
+
 /* DocumentList class wraps around all category and course data
  */
 class DocumentList {
@@ -112,6 +119,14 @@ class DocumentList {
 			});
 		});
 	}
+
+	// /* Renders the front end HTML of categories
+	//  * @return HTML string
+	//  */
+	// renderHTML() {
+
+	// }
+
 }
 
 /* CategoryItem is the class that holds the colletion of courses
@@ -129,6 +144,7 @@ class CategoryItem {
 		});
 
 		this.categoryName = inputData.category;
+		this.id = getUID('category');
 	}
 
 	/* This function returns the object to be JSONified and saved to file
@@ -173,6 +189,8 @@ class CourseItem {
 		if (inputData.date !== '' && inputData.date !== null) {
 			this.lastUpdatedDate = new Date(inputData.date);
 		}
+
+		this.id = getUID('course');
 	}
 
 	/* Returns packed object to be saved
@@ -190,6 +208,8 @@ class CourseItem {
 			date: this.lastUpdatedDate,
 			entries: entriesList
 		};
+
+		this.id = getUID('document');
 	}
 }
 
@@ -235,6 +255,8 @@ class DocumentEntryList {
 				this.link = link;
 				this.linkValid = false;
 				this.flag = flag;
+
+				this.id = getUID('document');
 			}
 		};
 

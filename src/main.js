@@ -5,6 +5,7 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
+const hash = require('object-hash');
 
 const { app, BrowserWindow, Menu, ipcMain } = electron;
 const { dialog } = electron;
@@ -134,17 +135,11 @@ function loadDocumentList(file) {
 		// TODO: user workflow: prompt user to save and reset document list
 	}
 
-	console.log(DocumentEntryList);
 	g_documentList = new DocumentList(data, file);
 
 	// - Validate data
-	// TODO:
 	g_documentList.validateFiles();
 
-	// - Send "rendered" data to view model in index.json
-	// TODO:
-
-	// HACK:
 	// send data via IPC to the javascript in webpage
-	mainWindow.webContents.send('documentList:load', data);
+	mainWindow.webContents.send('documentList:update', { data: g_documentList, hash: hash(g_documentList) });
 }
