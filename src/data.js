@@ -182,7 +182,7 @@ class CourseItem {
 			}
 		});
 
-		this.courseId = inputData.course;
+		this.courseCode = inputData.course;
 		this.courseDescription = inputData.description;
 
 		this.lastUpdatedDate = null;
@@ -203,7 +203,7 @@ class CourseItem {
 		});
 
 		return {
-			course: this.courseId,
+			course: this.courseCode,
 			description: this.courseDescription,
 			date: this.lastUpdatedDate,
 			entries: entriesList
