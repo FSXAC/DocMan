@@ -153,6 +153,42 @@ function loadDocumentList(file) {
 	mainWindow.webContents.send('documentList:update', { data: g_documentList, hash: hash(g_documentList) });
 }
 
+function findActiveCategory(categoryId) {
+	for (let i = 0; i < g_documentList.categories.length; i++) {
+		if (g_documentList.categories[i].id === categoryId) {
+			return g_documentList.categories[i];
+		}
+	}
+
+	return null;
+}
+
+function findActiveCourse(category, courseId) {
+	for (let i = 0; i < category.courses.length; i++) {
+		if (category.courses[i].id === courseId) {
+			return category.courses[i];
+		}
+	}
+
+	return null;
+}
+
+function findActiveDocumentEntry(course, docId) {
+	for (let i = 0; i < course.entries.length; i++) {
+		if (course.entries[i].id === docId) {
+			return course.entries[i];
+		} else if (course.entries[i].isSeries === true) {
+			for (let j = 0; j < course.entries[i].subEntries.length; j++) {
+				if (course.entries[i].subEntries[j].id === docId) {
+					return course.entries[i].subEntries[j];
+				}
+			}
+		}
+	}
+
+	return null;
+}
+
 function setActiveCategory(ids) {
 	// Find the category with ID
 	if (ids.categoryId === null) {
@@ -160,46 +196,47 @@ function setActiveCategory(ids) {
 		return false;
 	}
 
-	for (var i = 0; i < g_documentList.categories.length; i++) {
-		const c = g_documentList.categories[i];
-		if (c.id === ids.categoryId) {
-			mainWindow.webContents.send('documentList:onActiveCategory', c);
-			return true;
-		}
+	const activeCategory = findActiveCategory(ids.categoryId);
+	if (activeCategory !== null) {
+		mainWindow.webContents.send('documentList:onActiveCategory', activeCategory);
+		return true;
 	}
 
-	// TODO: throw warning
-	console.error('no category ID is found');
+	// TODO: error
 	return false;
 }
 
 function setActiveCourse(ids) {
-	console.log(ids);
-
 	if (ids.categoryId === null || ids.courseId === null) {
-		return;
+		return false;
 	}
 
 	// Find the category
-	let activeCategory;
-	for (let i = 0; i < g_documentList.categories.length; i++) {
-		const c = g_documentList.categories[i];
-		if (c.id === ids.categoryId) {
-			activeCategory = c;
-		}
-	}
+	const activeCategory = findActiveCategory(ids.categoryId);
 
 	// Find course
-	for (let i = 0; i < activeCategory.courses.length; i++) {
-		const c = activeCategory.courses[i];
-		if (c.id === ids.courseId) {
-			mainWindow.webContents.send('documentList:onActiveCourse', c);
-			return true;
-		}
+	const course = findActiveCourse(activeCategory, ids.courseId);
+	if (course !== null) {
+		mainWindow.webContents.send('documentList:onActiveCourse', course);
+		return true;
 	}
-	
+
+	return false;
 }
 
 function setActiveDocumentEntry(ids) {
-	console.log(ids);
+	if (ids.categoryId === null || ids.courseId === null || ids.documentEntryId === null) {
+		return false;
+	}
+
+	const cat = findActiveCategory(ids.categoryId);
+	const crs = findActiveCourse(cat, ids.courseId);
+	const doc = findActiveDocumentEntry(crs, ids.documentEntryId);
+
+	if (doc !== null) {
+		mainWindow.webContents.send('documentList:onActiveDocumentEntry', doc);
+		return true;
+	}
+
+	return false;
 }

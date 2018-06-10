@@ -179,6 +179,15 @@ function populateDocuments(courseData) {
 	});
 }
 
+// Add new buttons
+$('#add-category-button').on('click', onAddCategory);
+$('#add-course-button').on('click', onAddCategory);
+$('#add-document-entry-button').on('click', onAddCategory);
+
+function onAddCategory() {
+	
+}
+
 // TODO: maybe use a class ???
 // View state machine
 // Different states
