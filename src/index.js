@@ -1,4 +1,7 @@
 
+// DEBUG
+const DEBUG_DISPLAY_DOCUMENT_ID_INSTEAD_OF_NAME = true;
+
 // Electron on IPC renderer
 const electron = require('electron');
 const { ipcRenderer } = electron;
@@ -13,11 +16,11 @@ let $statusText = $('#status-text');
 
 let $categoryList = $('#category-list');
 let $courseList = $('#course-list');
-let $documentList = $('#document-list');
+let $documentEntryList = $('#document-entry-list');
 
 let $categoryListContainer = $('#category-list-container');
 let $courseListContainer = $('#course-list-container');
-let $documentListContainer = $('#document-list-container');
+let $documentEntryListContainer = $('#document-entry-list-container');
 
 let $mainPanelContainer = $('#main-panel-container');
 
@@ -30,9 +33,11 @@ let g_localDocumentList;
 let g_localDocumentListHash;
 
 // Active ids
-let g_activeCategoryId;
-let g_activeCourseId;
-let g_activeDocumentId;
+let g_activeIds = {
+	categoryId: null,
+	courseId: null,
+	documentEntryId: null
+};
 
 // ICP handlers for signals
 ipcRenderer.on('documentList:update', (e, payload)=> {
@@ -52,12 +57,14 @@ ipcRenderer.on('documentList:onActiveCategory', (e, categoryData)=> {
 	populateCourses(categoryData);
 });
 
-ipcRenderer.on('documentlist:onActiveCourse', (e, courseData)=> {
+ipcRenderer.on('documentList:onActiveCourse', (e, courseData)=> {
 	setState(ViewStates.document);
+	populateDocuments(courseData);
+});
 
+ipcRenderer.on('documentList:onActiveDocumentEntry', (e, documentEntryData)=> {
 	// TODO: implement this
-	// populateDocuments(courseData);
-})
+});
 
 // HTML population functions
 function populateCategories() {
@@ -72,7 +79,12 @@ function populateCategories() {
 		newCategoryA.classList.add('nav-link', 'text-muted');
 		// FIXME:
 		newCategoryA.href = '#';
-		newCategoryA.appendChild(document.createTextNode(category.categoryName));
+
+		if (DEBUG_DISPLAY_DOCUMENT_ID_INSTEAD_OF_NAME) {
+			newCategoryA.appendChild(document.createTextNode(category.id));
+		} else {
+			newCategoryA.appendChild(document.createTextNode(category.categoryName));
+		}
 
 		newCategory.appendChild(newCategoryA);
 		newCategory.addEventListener('click', ()=> {
@@ -82,10 +94,10 @@ function populateCategories() {
 			newCategory.classList.add('active');
 
 			// - set active category ID
-			g_activeCategoryId = category.id;
+			g_activeIds.categoryId = category.id;
 
 			// - send event with active category ID
-			ipcRenderer.send('request:setActiveCategory', g_activeCategoryId);
+			ipcRenderer.send('request:setActiveCategory', g_activeIds);
 
 			// ... app main should find the corresponding course object with the same ID
 			// ... app main should fire event to populate course with course object
@@ -101,13 +113,17 @@ function populateCourses(categoryData) {
 	categoryData.courses.forEach(course => {
 		let newCourse = document.createElement('li');
 		newCourse.classList.add('nav-item', 'course-item');
-		newCourse.attr('id', course.id);
+		$(newCourse).attr('id', course.id);
 
 		let newCourseA = document.createElement('a');
 		newCourseA.classList.add('nav-link', 'text-muted');
 		// FIXME:
 		newCourseA.href = '#';
-		newCourseA.appendChild(document.createTextNode(course.courseCode));
+		if (DEBUG_DISPLAY_DOCUMENT_ID_INSTEAD_OF_NAME) {
+			newCourseA.appendChild(document.createTextNode(course.id));
+		} else {
+			newCourseA.appendChild(document.createTextNode(course.courseCode));
+		}
 		newCourse.appendChild(newCourseA);
 		newCourse.addEventListener('click', ()=> {
 
@@ -116,14 +132,43 @@ function populateCourses(categoryData) {
 			newCourse.classList.add('active');
 
 			// - set active course ID
-			g_activeCourseId = course.id;
+			g_activeIds.courseId = course.id;
 
 			// - send event with active course ID
-			ipcRenderer.send('request:setActiveCourse', g_activeCourseId);
+			ipcRenderer.send('request:setActiveCourse', g_activeIds);
 
 		});
 
 		$courseList.append(newCourse);
+	});
+}
+
+function populateDocuments(courseData) {
+	$documentEntryList.empty();
+
+	courseData.entries.forEach(entry => {
+		// TODO: there must be a better way
+		if (entry.isSeries === true) {
+			// TODO:
+		} else {
+			let newEntry = document.createElement('li');
+			newEntry.classList.add('nav-item', 'document-entry-item');
+			$(newEntry).attr('id', entry.id);
+
+			let newEntryA = document.createElement('a');
+			newEntryA.classList.add('nav-link', 'text-muted');
+			newEntryA.href = '#';
+			newEntryA.appendChild(document.createTextNode(entry.title));
+			newEntry.appendChild(newEntryA);
+			newEntry.addEventListener('click', ()=> {
+				$('.document-entry-item').removeClass('active');
+				$(newEntry).addClass('active');
+
+				g_activeIds.documentEntryId = entry.id;
+
+				ipcRenderer.send('request:setActiveDocumentEntry', g_activeIds);
+			});
+		}
 	});
 }
 
@@ -158,7 +203,7 @@ const ViewStates = {
 	category: 'category',
 	course: 'course',
 	document: 'document'
-}
+};
 let currentState = ViewStates.uninit;
 updateStateOutput();
 
@@ -202,7 +247,7 @@ function updateStateOutput() {
 	switch(currentState) {
 		case ViewStates.uninit: {
 			$mainPanelContainer.addClass('col-sm-10');
-			$documentListContainer.hide();
+			$documentEntryListContainer.hide();
 			$courseListContainer.hide();
 			$allSidebarSticky.hide();
 		}
@@ -217,19 +262,19 @@ function updateStateOutput() {
 		break;
 		case ViewStates.category: {
 			$mainPanelContainer.addClass('col-sm-10');
-			$documentListContainer.hide();
+			$documentEntryListContainer.hide();
 			$courseListContainer.hide();
 		}
 		break;
 		case ViewStates.course: {
 			$mainPanelContainer.addClass('col-sm-8');
-			$documentListContainer.hide();
+			$documentEntryListContainer.hide();
 			$courseListContainer.show();
 		}
 		break;
 		case ViewStates.document: {
 			$mainPanelContainer.addClass('col-sm-6');
-			$documentListContainer.show();
+			$documentEntryListContainer.show();
 			$courseListContainer.show();
 		}
 		break;

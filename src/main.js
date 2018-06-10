@@ -103,6 +103,15 @@ app.on('active', ()=>{
 
 // IPC incoming events
 ipcMain.on('request:openDocumentList', openDocumentList);
+ipcMain.on('request:setActiveCategory', (e, ids)=> {
+	setActiveCategory(ids);
+});
+ipcMain.on('request:setActiveCourse', (e, ids)=> {
+	setActiveCourse(ids);
+});
+ipcMain.on('request:setActiveDocumentEntry', (e, ids)=> {
+	setActiveDocumentEntry(ids);
+});
 
 // Global document variables
 let g_documentList;
@@ -142,4 +151,33 @@ function loadDocumentList(file) {
 
 	// send data via IPC to the javascript in webpage
 	mainWindow.webContents.send('documentList:update', { data: g_documentList, hash: hash(g_documentList) });
+}
+
+function setActiveCategory(ids) {
+	// Find the category with ID
+	const categoryId = ids.categoryId;
+	if (categoryId === null) {
+		// TODO: throw error
+		return false;
+	}
+
+	for (var i = 0; i < g_documentList.categories.length; i++) {
+		const c = g_documentList.categories[i];
+		if (c.id === categoryId) {
+			mainWindow.webContents.send('documentList:onActiveCategory', c);
+			return true;
+		}
+	}
+
+	// TODO: throw warning
+	console.error('no category ID is found');
+	return false;
+}
+
+function setActiveCourse(ids) {
+	console.log(ids);
+}
+
+function setActiveDocumentEntry(ids) {
+	console.log(ids);
 }

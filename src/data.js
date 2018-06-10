@@ -93,7 +93,7 @@ class DocumentList {
 			}
 
 			return isValid;
-		}
+		};
 
 		this.categories.forEach(category => {
 			category.courses.forEach(course => {
@@ -208,8 +208,6 @@ class CourseItem {
 			date: this.lastUpdatedDate,
 			entries: entriesList
 		};
-
-		this.id = getUID('document');
 	}
 }
 
@@ -222,12 +220,15 @@ class DocumentEntry {
 		this.title = inputData.title;
 		this.link = inputData.link;
 		this.linkValid = false;
+		this.isSeries = false;
 
 		if (DocumentEntryFlag.hasOwnProperty(this.flag)) {
 			this.flag = inputData.flag;
 		} else {
 			// TODO: throw error
 		}
+
+		this.id = getUID('document');
 	}
 
 	/* Returns packed object to be saved
@@ -262,6 +263,7 @@ class DocumentEntryList {
 
 		this.title = inputData.title;
 		this.subEntries = [];
+		this.isSeries = true;
 
 		const el = inputData.enum.length;
 		const ll = inputData.links.length;
