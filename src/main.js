@@ -64,7 +64,7 @@ const mainMenuTemplate = [
 		submenu: [
 			{
 				label: 'Learn More',
-				click() { electron.shell.openExternal('https://electronjs.org') }
+				click() { electron.shell.openExternal('https://electronjs.org'); }
 			}
 		]
 	}
@@ -155,15 +155,14 @@ function loadDocumentList(file) {
 
 function setActiveCategory(ids) {
 	// Find the category with ID
-	const categoryId = ids.categoryId;
-	if (categoryId === null) {
+	if (ids.categoryId === null) {
 		// TODO: throw error
 		return false;
 	}
 
 	for (var i = 0; i < g_documentList.categories.length; i++) {
 		const c = g_documentList.categories[i];
-		if (c.id === categoryId) {
+		if (c.id === ids.categoryId) {
 			mainWindow.webContents.send('documentList:onActiveCategory', c);
 			return true;
 		}
@@ -176,6 +175,29 @@ function setActiveCategory(ids) {
 
 function setActiveCourse(ids) {
 	console.log(ids);
+
+	if (ids.categoryId === null || ids.courseId === null) {
+		return;
+	}
+
+	// Find the category
+	let activeCategory;
+	for (let i = 0; i < g_documentList.categories.length; i++) {
+		const c = g_documentList.categories[i];
+		if (c.id === ids.categoryId) {
+			activeCategory = c;
+		}
+	}
+
+	// Find course
+	for (let i = 0; i < activeCategory.courses.length; i++) {
+		const c = activeCategory.courses[i];
+		if (c.id === ids.courseId) {
+			mainWindow.webContents.send('documentList:onActiveCourse', c);
+			return true;
+		}
+	}
+	
 }
 
 function setActiveDocumentEntry(ids) {

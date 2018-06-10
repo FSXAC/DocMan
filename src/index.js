@@ -1,6 +1,6 @@
 
 // DEBUG
-const DEBUG_DISPLAY_DOCUMENT_ID_INSTEAD_OF_NAME = true;
+const DEBUG_DISPLAY_DOCUMENT_ID_INSTEAD_OF_NAME = false;
 
 // Electron on IPC renderer
 const electron = require('electron');
@@ -158,7 +158,12 @@ function populateDocuments(courseData) {
 			let newEntryA = document.createElement('a');
 			newEntryA.classList.add('nav-link', 'text-muted');
 			newEntryA.href = '#';
-			newEntryA.appendChild(document.createTextNode(entry.title));
+
+			if (DEBUG_DISPLAY_DOCUMENT_ID_INSTEAD_OF_NAME) {
+				newEntryA.appendChild(document.createTextNode(entry.id));
+			} else {
+				newEntryA.appendChild(document.createTextNode(entry.title));
+			}
 			newEntry.appendChild(newEntryA);
 			newEntry.addEventListener('click', ()=> {
 				$('.document-entry-item').removeClass('active');
@@ -168,31 +173,11 @@ function populateDocuments(courseData) {
 
 				ipcRenderer.send('request:setActiveDocumentEntry', g_activeIds);
 			});
+
+			$documentEntryList.append(newEntry);
 		}
 	});
 }
-
-// // REFACTOR:
-// function populateEntries(entries) {
-// 	setState(ViewStates.document);
-
-// 	entries.forEach(element => {
-
-// 		// TODO: allow series / enum entries
-// 		if (element.title !== undefined && element.title !== null && element.title !== '') {
-// 			let newEntry = document.createElement('li');
-// 			newEntry.classList.add('nav-item');
-
-// 			let newEntryA = document.createElement('a');
-// 			newEntryA.classList.add('nav-link', 'text-muted');
-// 			newEntryA.href = '#';
-// 			newEntryA.appendChild(document.createTextNode(element.title));
-
-// 			newEntry.appendChild(newEntryA);
-// 			$documentList.append(newEntry);
-// 		}
-// });
-// }
 
 // TODO: maybe use a class ???
 // View state machine
