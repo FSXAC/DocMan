@@ -153,20 +153,31 @@ function populateDocuments(courseData) {
 			newEntryLi.classList.add('nav-item');
 
 			let newEntryTitle = document.createElement('a');
-			newEntryTitle.href = '#';
+			const entryTitle = entry.title.replace(' ', '-');
+			const collapsableId = courseData.id + '-' + entryTitle + '-group';
+
+			let newEntryDiv = document.createElement('div');
+			newEntryDiv.classList.add('collapse', 'show');
+			$(newEntryDiv).attr('id', collapsableId);
+
 			newEntryTitle.classList.add('nav-link', 'text-muted', 'doc-entry-group-title');
+			newEntryTitle.href = '#' + collapsableId;
+			$(newEntryTitle).attr('data-toggle', 'collapse');
+			$(newEntryTitle).attr('role', 'button');
+			$(newEntryTitle).attr('aria-expanded', 'true');
+			$(newEntryTitle).attr('aria-controls', collapsableId);
 			newEntryTitle.appendChild(document.createTextNode(entry.title));
 
 			let newEntryGroup = document.createElement('ul');
-			newEntryGroup.classList.add('row', 'nav', 'ml-3', 'pl-1', 'mb-1', 'pb-1', 'mr-3', 'doc-entry-group');
+			newEntryGroup.classList.add('nav', 'ml-3', 'p-1', 'mb-1', 'mr-3', 'doc-entry-group');
 
 			entry.subEntries.forEach(subentry => {
 				let newEntry = document.createElement('li');
-				newEntry.classList.add('col-sm-12', 'col-md-3', 'col-lg-2', 'p-0', 'document-entry-item');
+				newEntry.classList.add('document-entry-item');
 				$(newEntry).attr('id', subentry.id);
 
 				let newEntryA = document.createElement('a');
-				newEntryA.classList.add('m-0', 'mt-1');
+				newEntryA.classList.add('p-1', 'btn', 'btn-sm', 'btn-outline-secondary', 'm-1');
 				newEntryA.href = '#';
 
 				if (DEBUG_DISPLAY_DOCUMENT_ID_INSTEAD_OF_NAME) {
@@ -189,7 +200,8 @@ function populateDocuments(courseData) {
 			});
 
 			newEntryLi.appendChild(newEntryTitle);
-			newEntryLi.appendChild(newEntryGroup);
+			newEntryDiv.appendChild(newEntryGroup);
+			newEntryLi.appendChild(newEntryDiv);
 			$documentEntryList.append(newEntryLi);
 
 		} else {
