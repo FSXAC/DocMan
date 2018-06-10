@@ -147,10 +147,53 @@ function populateDocuments(courseData) {
 	$documentEntryList.empty();
 
 	courseData.entries.forEach(entry => {
-		// TODO: there must be a better way
 		if (entry.isSeries === true) {
-			// TODO:
+
+			let newEntryLi = document.createElement('li');
+			newEntryLi.classList.add('nav-item');
+
+			let newEntryTitle = document.createElement('a');
+			newEntryTitle.href = '#';
+			newEntryTitle.classList.add('nav-link', 'text-muted', 'doc-entry-group-title');
+			newEntryTitle.appendChild(document.createTextNode(entry.title));
+
+			let newEntryGroup = document.createElement('ul');
+			newEntryGroup.classList.add('row', 'nav', 'ml-3', 'pl-1', 'mb-1', 'pb-1', 'mr-3', 'doc-entry-group');
+
+			entry.subEntries.forEach(subentry => {
+				let newEntry = document.createElement('li');
+				newEntry.classList.add('col-sm-12', 'col-md-3', 'col-lg-2', 'p-0', 'document-entry-item');
+				$(newEntry).attr('id', subentry.id);
+
+				let newEntryA = document.createElement('a');
+				newEntryA.classList.add('m-0', 'mt-1');
+				newEntryA.href = '#';
+
+				if (DEBUG_DISPLAY_DOCUMENT_ID_INSTEAD_OF_NAME) {
+					newEntryA.appendChild(document.createTextNode(subentry.id));
+				} else {
+					newEntryA.appendChild(document.createTextNode(subentry.number));
+				}
+
+				newEntry.appendChild(newEntryA);
+				newEntry.addEventListener('click', ()=> {
+					$('.document-entry-item').removeClass('active');
+					$(newEntry).addClass('active');
+
+					g_activeIds.documentEntryId = subentry.id;
+
+					ipcRenderer.send('request:setActiveDocumentEntry', g_activeIds);
+				});
+
+				$(newEntryGroup).append(newEntry);
+			});
+
+			newEntryLi.appendChild(newEntryTitle);
+			newEntryLi.appendChild(newEntryGroup);
+			$documentEntryList.append(newEntryLi);
+
 		} else {
+
 			let newEntry = document.createElement('li');
 			newEntry.classList.add('nav-item', 'document-entry-item');
 			$(newEntry).attr('id', entry.id);
@@ -185,7 +228,7 @@ $('#add-course-button').on('click', onAddCategory);
 $('#add-document-entry-button').on('click', onAddCategory);
 
 function onAddCategory() {
-	
+
 }
 
 // TODO: maybe use a class ???
