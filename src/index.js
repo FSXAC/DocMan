@@ -76,7 +76,7 @@ function populateCategories() {
 		$(newCategory).attr('id', category.id);
 
 		let newCategoryA = document.createElement('a');
-		newCategoryA.classList.add('nav-link', 'text-muted');
+		newCategoryA.classList.add('nav-link', 'doclist-item', 'text-dark');
 		// FIXME:
 		newCategoryA.href = '#';
 
@@ -116,7 +116,7 @@ function populateCourses(categoryData) {
 		$(newCourse).attr('id', course.id);
 
 		let newCourseA = document.createElement('a');
-		newCourseA.classList.add('nav-link', 'text-muted');
+		newCourseA.classList.add('nav-link', 'doclist-item', 'text-dark');
 		// FIXME:
 		newCourseA.href = '#';
 		if (DEBUG_DISPLAY_DOCUMENT_ID_INSTEAD_OF_NAME) {
@@ -160,7 +160,7 @@ function populateDocuments(courseData) {
 			newEntryDiv.classList.add('collapse', 'show');
 			$(newEntryDiv).attr('id', collapsableId);
 
-			newEntryTitle.classList.add('nav-link', 'text-muted', 'doc-entry-group-title');
+			newEntryTitle.classList.add('nav-link', 'doclist-item', 'text-dark', 'doc-entry-group-title');
 			newEntryTitle.href = '#' + collapsableId;
 			$(newEntryTitle).attr('data-toggle', 'collapse');
 			$(newEntryTitle).attr('role', 'button');
@@ -171,15 +171,24 @@ function populateDocuments(courseData) {
 			let newEntryGroup = document.createElement('ul');
 			newEntryGroup.classList.add('nav', 'ml-3', 'p-1', 'mb-1', 'mr-3', 'doc-entry-group');
 
+			// For each sub entry document (individual documents)
 			entry.subEntries.forEach(subentry => {
 				let newEntry = document.createElement('li');
 				newEntry.classList.add('document-entry-item');
 				$(newEntry).attr('id', subentry.id);
 
 				let newEntryA = document.createElement('a');
-				newEntryA.classList.add('p-1', 'btn', 'btn-sm', 'btn-outline-secondary', 'm-1');
+				newEntryA.classList.add('p-1', 'btn', 'btn-sm', 'm-1');
 				newEntryA.href = '#';
 
+				// Invalid link class
+				if (subentry.linkValid === false) {
+					newEntryA.classList.add('btn-outline-danger');
+				} else {
+					newEntryA.classList.add('btn-outline-dark');
+				}
+
+				// Name
 				if (DEBUG_DISPLAY_DOCUMENT_ID_INSTEAD_OF_NAME) {
 					newEntryA.appendChild(document.createTextNode(subentry.id));
 				} else {
@@ -211,8 +220,14 @@ function populateDocuments(courseData) {
 			$(newEntry).attr('id', entry.id);
 
 			let newEntryA = document.createElement('a');
-			newEntryA.classList.add('nav-link', 'text-muted');
+			newEntryA.classList.add('nav-link', 'doclist-item');
 			newEntryA.href = '#';
+
+			if (entry.linkValid === false) {
+				newEntryA.classList.add('text-danger');
+			} else {
+				newEntryA.classList.add('text-dark');
+			}
 
 			if (DEBUG_DISPLAY_DOCUMENT_ID_INSTEAD_OF_NAME) {
 				newEntryA.appendChild(document.createTextNode(entry.id));

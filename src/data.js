@@ -95,21 +95,20 @@ class DocumentList {
 			return isValid;
 		};
 
+		// Depth-first validate link of each documents
 		this.categories.forEach(category => {
 			category.courses.forEach(course => {
 				course.entries.forEach(entry => {
 					if (entry instanceof DocumentEntry) {
 						if (entry.link !== undefined && entry.link !== null) {
-
-							// TODO: some way to join directory
-							entry.isValid = validateSingleFile(entry.link);
+							entry.linkValid = validateSingleFile(entry.link);
 						} else {
 							// TODO: throw error
 						}
 					} else if (entry instanceof DocumentEntryList) {
 						entry.subEntries.forEach(element => {
 							if (element.link !== undefined) {
-								element.isValid = validateSingleFile(element.link);
+								element.linkValid = validateSingleFile(element.link);
 							}
 						});
 					} else {
@@ -119,14 +118,6 @@ class DocumentList {
 			});
 		});
 	}
-
-	// /* Renders the front end HTML of categories
-	//  * @return HTML string
-	//  */
-	// renderHTML() {
-
-	// }
-
 }
 
 /* CategoryItem is the class that holds the colletion of courses
